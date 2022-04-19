@@ -14,3 +14,9 @@ Okay now that I got sidetracked we'll steal the words from wordle itself.
 
 ### Finding the Official Word Bank
 Okay, now we'll get the official bank. Go to https://www.nytimes.com/games/wordle/index.html through your favorite browser. Then right click, select "Inspect", then select "Debugger", then "Sources". This should bring up a directory. Open up the following directory: "Main Thread/www.nytimes.com/games/wordle". This should make the JS file "main.e17c80f8.js" available. Right click on it and download it. I will not be including the main.e17c80f8.js file.
+
+### Parsing the Word List
+From here there are a few ways we could go about getting the words into a usable form. By the way, we should compile three sets of words. A list of solutions, a list of guesses, and the combined list. I've done that on my own. I'll include the python file I used for that, but not the files themselves. I used the lists from the JS file, it just took some formatting to make sure python could run them. Then I sorted them, printed them, and output them to files using shell commands.
+
+### Traversing the Word Lists
+Now comes the hard part, using the lists to solve the wordle. 
