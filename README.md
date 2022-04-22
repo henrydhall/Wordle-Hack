@@ -18,7 +18,16 @@ Okay, now we'll get the official bank. Go to https://www.nytimes.com/games/wordl
 ### Parsing the Word List
 From here there are a few ways we could go about getting the words into a usable form. By the way, we should compile three sets of words. A list of solutions, a list of guesses, and the combined list. I've done that on my own. I'll include the python file I used for that, but not the files themselves. I used the lists from the JS file, it just took some formatting to make them directly usable in a python file. Then I sorted them, printed them, formatted them, and output them to files using shell commands.
 
-### Letter Occurrence Analysis
+## Letter Occurrence Analysis
 Now comes the hard part, using the lists to solve the wordle. At this point I want to do some analysis and figure out how common letters are, if there is a prevalence of double letters, the ideal guesses, and so on. This one is going to be messy, but I'll include the images and graphs and so on. I am going back and forth on what to do with the lists of words, but for now I'll probably pull them from the files each time I need them. I've included bar graphs of occurrences of each letter in words in the "Figures" directory.
 
-* TODO: include figures in the README, do frequency for guesses, combined.
+* TODO: include figures in the README.
+
+## Solving Puzzles
+Now we need to be able to search based on guesses to eliminate words from the list. I'm doing this before finding ideal words because this functionality will be needed to help in that process. The first step is finding the ideal first guess.
+
+### Ideal First Guess
+Looking at Answer_Words_Once.png we see that the most common letter is 'E', followed by 'A'; this might lead us to think that we should take only words with 'E', 'A', and so on. But we should search by each to see which ones we should eliminate next. I found that 'E' should be followed by 'R', 'A', 'T', and finally 'C'. This gives us the options of "CATER", "CRATE", "REACT", and "TRACE". Later on we'll find the most common positions for letters and narrow it down more, but for now one of these will do.
+
+### Streamlining Letter Elimination
+To do this we want to make a game loop to accept input of some sort to eliminate words and solve the puzzle.
