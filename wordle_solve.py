@@ -1,5 +1,6 @@
 # Libraries I need.
 from pathlib import Path
+from re import M
 import string
 from matplotlib import markers, pyplot as plt
 
@@ -24,6 +25,15 @@ class WordList:
         self.narrowed_guess_list = guess_list
         self.found_letters = set()         # For holding the SET of found letters.
         self.eliminated_letters = set()    # For holding the SET of eliminated letters.
+
+    def __reset__(self):
+        self.__init__( self.answer_list, self.guess_list )
+
+    def __soft_reset__(self):
+        raise NotImplementedError('soft_rest not implemented')
+
+    def copy(self):
+        return self
 
     def search_right_letter_right_position( self, letter, position ):
         """
@@ -124,13 +134,13 @@ class WordList:
 
     def print_narrowed_answers(self):
         """
-        Clear
+        Clear from name.
         """
         print(self.narrowed_answer_list)
 
     def print_narrowed_guesses(self):
         """
-        Clear
+        Clear from name.
         """
         print(self.narrowed_guess_list)
 
@@ -142,13 +152,81 @@ class WordList:
             most_common_letters: the list of most common letters. If the number of occurences is equal they're in alphabetical order.
             no_occurences: True if the most frequent doesn't actually occur, False if it does.
         """
+        most_common_letters = []
+
+        # Initialize our set of found_letters, just for this function.
+        checked_letters = set()
+        for letter in self.found_letters:     # Fill it with letters from our two sets of letters.
+            checked_letters.add(letter)
+        for letter in self.eliminated_letters:
+            checked_letters.add(letter)
+
+        copy_list = self.copy() # Copy to analyze, so we don't have to worry about messing up our actual list.
+        letter_frequencies = copy_list.combined_frequency()
+
+        for letter in checked_letters:
+            letter_frequencies[ alphabet_list.index(letter) ] = 0 # We need to set these to 0 so we only look at letters we don't know about yet.
+
+        if display: # This displays the bar graphs letter frequency of narrowed lists.
+            copy_list.display_narrowed_answer_list_stats()
+
+        while len( most_common_letters ) < WORD_LENGTH : # We want 5 if we can get them.
+            max_frequency = max(letter_frequencies)
+            if max_frequency == 0:
+                return most_common_letters
+            
+            for i in range(26):
+                if letter_frequencies[i] == max_frequency:
+                    checked_letters.add(alphabet_list[i])
+                    most_common_letters.append( alphabet_list[i] )
+                    copy_list.search_letter( alphabet_list[i] )
+                    letter_frequencies = copy_list.combined_frequency()
+                    for letter in checked_letters:
+                        letter_frequencies[ alphabet_list.index(letter) ] = 0
+        #TODO: make sure that there's not 0 words.
+        return most_common_letters
+
+    def play_loop(self):
+        print('TODO: play_loop')
+
+    def display_narrowed_answer_list_stats(self):
+        """
+        Display stats for the 
+        """
+        one_letter, two_letter, three_letter = self.letter_frequency()
+
+        # Make x labels for the bar graph
+        x_labels = [letter for letter in alphabet_list]
+
+        # One letter
+        plt.bar( x_labels, one_letter )
+        plt.title('At Least One Occurrence of Letter in Guess Words')
+        plt.ylabel('Occurrences')
+        plt.show()
+
+        # Two letter
+        plt.bar( x_labels, two_letter )
+        plt.title('At Least Two Occurrences of Letter in Guess Words')
+        plt.ylabel('Occurences')
+        plt.show()
+
+        # Three letter
+        plt.bar( x_labels, three_letter )
+        plt.title('At Least Three Occurrences of Letter in Guess Words')
+        plt.ylabel('Occurrences')
+        plt.show()
+
+    def letter_frequency(self):
+        """
+        Used to get the frequency of letters. 
+        Parameters- none.
+        Returns- 
+            one_letter, two_letter, three_letter: lists that contain how often a letter appears
+                once, twice, and thrice.
+        """
         one_letter = [0 for i in range(26)]
         two_letter = [0 for i in range(26)]
         three_letter = [0 for i in range(26)]
-
-        most_common_letters = []
-        no_occurrences = False
-
         for letter in alphabet_list:
             for word in self.narrowed_answer_list:
                 if word.count(letter) > 2:
@@ -157,48 +235,12 @@ class WordList:
                     two_letter[ alphabet_list.index(letter) ] += 1
                 elif word.count(letter) > 0:
                     one_letter[ alphabet_list.index(letter) ] += 1
+        return one_letter, two_letter, three_letter
 
-        for letter in self.found_letters:
-            one_letter[ alphabet_list.index(letter) ] = 0 # We need to set these to 0 so we only look at letters we don't know about yet.
-
-        if display: # This displays the bar graphs letter frequency of narrowed lists.
-            # Make x labels for the bar graph
-            x_labels = [letter for letter in alphabet_list]
-
-            # One letter
-            plt.bar( x_labels, one_letter )
-            plt.title('At Least One Occurrence of Letter in Guess Words')
-            plt.ylabel('Occurrences')
-            plt.show()
-
-            # Two letter
-            plt.bar( x_labels, two_letter )
-            plt.title('At Least Two Occurrences of Letter in Guess Words')
-            plt.ylabel('Occurences')
-            plt.show()
-
-            # Three letter
-            plt.bar( x_labels, three_letter )
-            plt.title('At Least Three Occurrences of Letter in Guess Words')
-            plt.ylabel('Occurrences')
-            plt.show()
-
-        while len( most_common_letters ) < WORD_LENGTH : # We want 5 if we can get them.
-            max_frequency = max(one_letter)
-            if max_frequency == 0:
-                return most_common_letters
-            
-            for i in range(26):
-                if one_letter[i] == max_frequency:
-                    one_letter[i] = 0
-                    most_common_letters.append( alphabet_list[i] )
-
-        #TODO: Account for words that have other most common letters in them. (use temp WordList)
-
-        return most_common_letters
-
-    def play_loop(self):
-        print('TODO: play_loop')
+    def combined_frequency(self):
+        one_letter, two_letter, three_letter = self.letter_frequency()
+        total_letters = [ one_letter[i] + two_letter[i] + three_letter[i] for i in range(26) ]
+        return total_letters
 
 def answer_list_stats():
     """
@@ -278,18 +320,26 @@ def guess_list_stats():
 if __name__ == '__main__':
     my_list = WordList(answers_list,guesses_list)
 
-    print( my_list.most_common_letters() )
+    print(my_list.most_common_letters())
 
-    my_list.search_wrong_letter_wrong_position('R')
-    my_list.search_wrong_letter_wrong_position('E')
-    my_list.search_right_letter_right_position('A',2)
+    """
     my_list.search_wrong_letter_wrong_position('C')
+    my_list.search_wrong_letter_wrong_position('A')
+
+    my_list.search_right_letter_wrong_position('T',2)
+    my_list.search_right_letter_wrong_position('E',3)
+    my_list.search_right_letter_wrong_position('R',4)
+
+    my_list.search_wrong_letter_wrong_position('B')
+
+    my_list.search_right_letter_wrong_position('I',2)
+
+    my_list.search_right_letter_wrong_position('T',0)
+    my_list.search_right_letter_wrong_position('E',4)
+    my_list.search_right_letter_wrong_position('R',1)
+
     my_list.search_right_letter_right_position('T',4)
 
-    my_list.search_right_letter_wrong_position('L',3)
-
-    answers_list = my_list.answer_list
-    my_list.print_narrowed_answers()
-    print(f'Found:      {my_list.found_letters}')
-    print(f'Eliminated: {my_list.eliminated_letters}')
-    print( my_list.most_common_letters(True) )
+    print( my_list.most_common_letters() )
+    print(my_list.narrowed_answer_list)
+    """
