@@ -26,8 +26,11 @@ Now comes the hard part, using the lists to solve the wordle. At this point I wa
 ## Solving Puzzles
 Now we need to be able to search based on guesses to eliminate words from the list. I'm doing this before finding ideal words because this functionality will be needed to help in that process. The first step is finding the ideal first guess.
 
+### Searching Words
+The way that I eliminate words isn't pretty, but it works and that's what counts. Basically there are three important situations, when a letter isn't in the word, when it is in the word but we don't know where, and when we know a letter's position. I included the search_letter function for looking for the most common set of letters in words which I discuss in the next situation.
+
 ### Ideal First Guess
 Looking at Answer_Words_Once.png we see that the most common letter is 'E', followed by 'A'; this might lead us to think that we should take only words with 'E', 'A', and so on. But we should search by each to see which ones we should eliminate next. I found that 'E' should be followed by 'R', 'A', 'T', and finally 'C'. This gives us the options of "CATER", "CRATE", "REACT", and "TRACE". Later on we'll find the most common positions for letters and narrow it down more, but for now one of these will do.
 
 ### Streamlining Letter Elimination
-To do this we want to make a game loop to accept input of some sort to eliminate words and solve the puzzle.
+To do this we want to make a game loop of sorts to accept input of some sort to eliminate words and solve the puzzle. At this point we need to be able to get the most common letters and get guesses for them. Getting the most common letters is done in the WordList.most_common_letters() function. It currently just goes through and finds the most common letters without accounting for letters occurring together. It returns the letters in a list in most frequent, and then alphabetical order. The next step is accounting for letters occurring together.
