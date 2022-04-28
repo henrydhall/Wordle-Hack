@@ -30,10 +30,15 @@ class WordList:
         self.__init__( self.answer_list, self.guess_list )
 
     def __soft_reset__(self):
-        raise NotImplementedError('soft_rest not implemented')
+        raise NotImplementedError('soft_reset not implemented')
 
     def copy(self):
-        return self
+        copy_list = WordList(self.answer_list, self.guess_list)
+        copy_list.narrowed_answer_list = self.narrowed_answer_list
+        copy_list.narrowed_guess_list  = self.narrowed_guess_list
+        copy_list.eliminated_letters = self.eliminated_letters
+        copy_list.found_letters = self.found_letters
+        return copy_list
 
     def search_right_letter_right_position( self, letter, position ):
         """
@@ -183,8 +188,21 @@ class WordList:
                     letter_frequencies = copy_list.combined_frequency()
                     for letter in checked_letters:
                         letter_frequencies[ alphabet_list.index(letter) ] = 0
-        #TODO: make sure that there's not 0 words.
         return most_common_letters
+
+    def get_best_guess(self):
+        most_common_letters = self.most_common_letters()
+        copy_list = self.copy()
+        stop_point = 5
+        for i in range(len(most_common_letters)):
+            copy_list.search_letter( most_common_letters[i] )
+            if len(copy_list.narrowed_answer_list) == 0:
+                stop_point = i
+        if stop_point != 5:
+            copy_list = self.copy()
+            for i in range(stop_point):
+                copy_list.search_letter(most_common_letters[i])
+        return copy_list.narrowed_answer_list
 
     def play_loop(self):
         print('TODO: play_loop')

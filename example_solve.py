@@ -1,4 +1,4 @@
-from wordle_solve import WordList
+from wordle_solve import WORD_LENGTH, WordList
 from wordle_solve import answers_list, guesses_list
 
 def trial_1():
@@ -143,6 +143,86 @@ def trial_2():
     my_list.print_narrowed_answers()
     # Now we need to account for multiple positions for sure.
 
+def actual_2022_04_25():
+    my_list = WordList(answers_list,guesses_list)
+    second_list = WordList( my_list.narrowed_answer_list, my_list.narrowed_guess_list )
+    print( second_list.most_common_letters() )
+    letters = second_list.most_common_letters()
+    for letter in letters:
+        second_list.search_letter(letter)
+    second_list.print_narrowed_answers()
+    print('Used: REACT, EA are right, but wrong position.')
+    my_list.search_right_letter_wrong_position('E',1)
+    my_list.search_right_letter_wrong_position('A',2)
+    my_list.search_wrong_letter_wrong_position('R')
+    my_list.search_wrong_letter_wrong_position('C')
+    my_list.search_wrong_letter_wrong_position('T')
+    my_list.print_narrowed_answers()
+    second_list = WordList(my_list.narrowed_answer_list,my_list.narrowed_answer_list)
+    print(second_list.most_common_letters())
+    second_list.search_letter('L')
+    second_list.search_letter('G')
+    second_list.search_letter('N')
+    second_list.print_narrowed_answers()
+    my_list.search_right_letter_right_position('A',0)
+    my_list.search_right_letter_wrong_position('E',4)
+    my_list.search_wrong_letter_wrong_position('N')
+    my_list.search_wrong_letter_wrong_position('G')
+    my_list.search_wrong_letter_wrong_position('L')
+    my_list.print_narrowed_answers()
+    second_list = my_list.copy()
+    print( second_list.most_common_letters() )
+
+def actual_2022_04_26():
+    my_list = WordList(answers_list,guesses_list)
+    second_list = WordList( my_list.narrowed_answer_list, my_list.narrowed_guess_list )
+    print( second_list.most_common_letters() )
+    letters = second_list.most_common_letters()
+    for letter in letters:
+        second_list.search_letter(letter)
+    second_list.print_narrowed_answers()
+    print('Used: REACT, E and T are right.')
+    my_list.search_right_letter_right_position('E',1)
+    my_list.search_right_letter_right_position('T',4)
+    my_list.search_wrong_letter_wrong_position('R')
+    my_list.search_wrong_letter_wrong_position('A')
+    my_list.search_wrong_letter_wrong_position('C')
+    my_list.print_narrowed_answers()
+    print('Use DEBIT')
+    print('I in wrong position')
+    my_list.search_wrong_letter_wrong_position('D')
+    my_list.search_wrong_letter_wrong_position('B')
+    my_list.search_right_letter_wrong_position('I',3)
+    second_list = my_list.copy()
+    second_list.print_narrowed_answers()
+    print('It is HEIST')
+
+def test_get_guess():
+    my_list = WordList(answers_list,guesses_list)
+    print( my_list.get_best_guess() )
+
+def actual_2022_04_27():
+    my_list = WordList(answers_list,guesses_list)
+    print(my_list.get_best_guess())
+    my_list.search_wrong_letter_wrong_position('C')
+    my_list.search_wrong_letter_wrong_position('A')
+    my_list.search_wrong_letter_wrong_position('T')
+    my_list.search_wrong_letter_wrong_position('E')
+    my_list.search_wrong_letter_wrong_position('R')
+    print(my_list.get_best_guess())
+    my_list.search_wrong_letter_wrong_position('G')
+    my_list.search_wrong_letter_wrong_position('D')
+    my_list.search_wrong_letter_wrong_position('L')
+    my_list.search_wrong_letter_wrong_position('Y')
+    my_list.search_right_letter_wrong_position('O',1)
+    print(my_list.get_best_guess())
+    my_list.search_wrong_letter_wrong_position('P')
+    my_list.search_right_letter_right_position('S',0)
+    my_list.search_right_letter_right_position('O',2)
+    my_list.search_right_letter_wrong_position('N',1)
+    print(my_list.get_best_guess())
+    print('And, SHOWN it is.')
+
 if __name__ == '__main__':
-    trial_1()
+    actual_2022_04_27()
     # TRIAL 1 is the winner, no more mass elimination of letters...for now.
