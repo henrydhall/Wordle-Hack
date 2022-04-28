@@ -34,3 +34,15 @@ Looking at Answer_Words_Once.png we see that the most common letter is 'E', foll
 
 ### Streamlining Letter Elimination
 To do this we want to make a game loop of sorts to accept input of some sort to eliminate words and solve the puzzle. At this point we need to be able to get the most common letters and get guesses for them. Getting the most common letters is done in the WordList.most_common_letters() function. It currently just goes through and finds the most common letters without accounting for letters occurring together. It returns the letters in a list in most frequent, and then alphabetical order. The next step is accounting for letters occurring together.
+
+#### Letters Occurring Together
+To do this I needed a function to copy the list. It was tricky because if you just return self in the copy function the function just returns what is basically a pointer to the original list. So you have to make a new instance of the class, copy the details, and then return it. It's not pretty, but it works.
+
+### Guess Creator
+In order to generate guesses we need to carefully eliminate letters in order of frequency and return the word list. To do this without messing up the original list, we make a copy, get most common letters, and then narrow the list. It shouldn't ever give an empty list of narrowed words, but just in case I check and rerun to the step before there aren't any words left.
+
+### Cleanup
+We'll need to make it so it doesn't all break down because of a lower case letter or anything.
+
+## Actually Solving Puzzles
+Now we need to make a loop that will let the user input a guess and which letters were correct and which were wrong, and so on. From there we'll move on to making a web application using Flask(maybe) to do all this.

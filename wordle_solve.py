@@ -25,14 +25,27 @@ class WordList:
         self.narrowed_guess_list = guess_list
         self.found_letters = set()         # For holding the SET of found letters.
         self.eliminated_letters = set()    # For holding the SET of eliminated letters.
+        # If any additional property is added, make sure you add it to WordList.copy() 
 
     def __reset__(self):
+        """
+        Resets the list, as if no searches had ever been made.
+        """
         self.__init__( self.answer_list, self.guess_list )
 
     def __soft_reset__(self):
         raise NotImplementedError('soft_reset not implemented')
 
     def copy(self):
+        """
+        Returns - copy_list, a copy of the list this function is called on. 
+        """
+        """
+        Because of the way user implemented classes work, I have to make a copy like this,
+        and then return it. Otherwise it returns a WordList with a different name, but it
+        points to the list that was copied.
+        I use this to search a list without ruining.
+        """
         copy_list = WordList(self.answer_list, self.guess_list)
         copy_list.narrowed_answer_list = self.narrowed_answer_list
         copy_list.narrowed_guess_list  = self.narrowed_guess_list
@@ -191,25 +204,30 @@ class WordList:
         return most_common_letters
 
     def get_best_guess(self):
-        most_common_letters = self.most_common_letters()
-        copy_list = self.copy()
-        stop_point = 5
-        for i in range(len(most_common_letters)):
-            copy_list.search_letter( most_common_letters[i] )
-            if len(copy_list.narrowed_answer_list) == 0:
+        """
+        Gets the ideal guess(es) based on letter frequency of remaining words.
+        Returns- ideal_guesses: a list of ideal guesses.
+        """
+        most_common_letters = self.most_common_letters()      # Get most common letters
+        copy_list = self.copy()                               # Get a copy list of self to work with
+        stop_point = 5                                        # We need to know if we accidentally eliminate all letters.
+        for i in range(len(most_common_letters)):             # For each most common letter.
+            copy_list.search_letter( most_common_letters[i] ) # Search to narrow the letters in the copied answer list.
+            if len(copy_list.narrowed_answer_list) == 0:      # If there is nothing left, set stopping point to that index.
                 stop_point = i
-        if stop_point != 5:
+        if stop_point != 5:                                      # If there was nothing left, redo up to the point before there's nothing left.
             copy_list = self.copy()
             for i in range(stop_point):
                 copy_list.search_letter(most_common_letters[i])
-        return copy_list.narrowed_answer_list
+        ideal_guesses = copy_list.narrowed_answer_list
+        return ideal_guesses
 
     def play_loop(self):
         print('TODO: play_loop')
 
     def display_narrowed_answer_list_stats(self):
         """
-        Display stats for the 
+        Display letter frequency stats for the narrowed answer list.
         """
         one_letter, two_letter, three_letter = self.letter_frequency()
 
