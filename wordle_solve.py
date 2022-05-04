@@ -2,7 +2,8 @@
 from pathlib import Path
 from re import M
 import string
-from matplotlib import markers, pyplot as plt
+from matplotlib import markers, pyplot as plt, use
+import pyinputplus
 
 # Globals I need.
 answers_list = Path('answers.txt').read_text().splitlines()
@@ -10,6 +11,7 @@ guesses_list = Path('guesses.txt').read_text().splitlines()
 combined_list = Path('combined.txt').read_text().splitlines()
 alphabet_list = string.ascii_uppercase
 WORD_LENGTH = 5
+MAX_GUESSES = 6
 
 class WordList:
     """
@@ -44,7 +46,7 @@ class WordList:
         Because of the way user implemented classes work, I have to make a copy like this,
         and then return it. Otherwise it returns a WordList with a different name, but it
         points to the list that was copied.
-        I use this to search a list without ruining.
+        I use this to search a list without ruining it.
         """
         copy_list = WordList(self.answer_list, self.guess_list)
         copy_list.narrowed_answer_list = self.narrowed_answer_list
@@ -96,27 +98,34 @@ class WordList:
 
         self.narrowed_guess_list = new_guesses
 
-    def search_wrong_letter_wrong_position(self, letter ):
+    def search_wrong_letter_wrong_position(self, letter, position = None):
         """
         Use to keep words with the letter given in the position given.
-        Parameters- letter: the letter to get rid of. 
+        Parameters- letter: the letter to get rid of, optional position for when letter is in word. 
         Returns- none. Does set the answer_list to the new list.
         """
-        self.eliminated_letters.add(letter)
+        if letter not in self.eliminated_letters:
+            self.eliminated_letters.add(letter)
 
         new_answers = []
         new_guesses = []
 
-        for word in self.narrowed_answer_list:
-            if letter not in word:
-                new_answers.append(word)
+        if letter not in self.found_letters:        # TODO: this documentation.
+            for word in self.narrowed_answer_list:
+                if letter not in word:
+                    new_answers.append(word)
+            for word in self.narrowed_guess_list:
+                if letter not in word:
+                    new_guesses.append(word)
+        elif letter in self.found_letters:
+            for word in self.narrowed_answer_list:
+                if word[ position ] != letter:
+                    new_answers.append(word)
+            for word in self.narrowed_guess_list:
+                if word[ position ] != letter:
+                    new_guesses.append(word)
 
         self.narrowed_answer_list = new_answers
-
-        for word in self.narrowed_guess_list:
-            if letter not in word:
-                new_guesses.append(word)
-
         self.narrowed_guess_list = new_guesses
 
     def search_letter( self, letter ):
@@ -215,7 +224,7 @@ class WordList:
             copy_list.search_letter( most_common_letters[i] ) # Search to narrow the letters in the copied answer list.
             if len(copy_list.narrowed_answer_list) == 0:      # If there is nothing left, set stopping point to that index.
                 stop_point = i
-        if stop_point != 5:                                      # If there was nothing left, redo up to the point before there's nothing left.
+        if stop_point != 5:             # If there was nothing left, redo up to the point before there's nothing left.
             copy_list = self.copy()
             for i in range(stop_point):
                 copy_list.search_letter(most_common_letters[i])
@@ -223,7 +232,42 @@ class WordList:
         return ideal_guesses
 
     def play_loop(self):
-        print('TODO: play_loop')
+        """
+        Loop to play through guessing a word all the way through.
+        Runs in console. 
+        """
+        number_guesses = 0
+        print('Let\'s play Wordle together!')
+        while  number_guesses != MAX_GUESSES:
+            self.play_turn()
+            number_guesses += 1
+            
+    def play_turn(self):
+        player_guess = 'NONE'
+        print('Here are the best guesses to use: ' )
+        print( self.get_best_guess() )
+        player_guess = self.get_guess() # TODO: stuff from here is kinda hairy good luck
+        print(f'We got the guess : {player_guess}')
+        self.get_right_letter_right_position()
+
+    def get_guess(self):
+        user_input = 'NONE'
+        while user_input == 'NONE':
+            user_input = input('Your guess: ').upper()
+            if len(user_input) != 5:
+                user_input = 'NONE'
+                print('Guess must be 5 letters')
+            for letter in user_input:
+                if letter not in alphabet_list:
+                    user_input = 'NONE'
+                    print('Guess must be letters only')
+        return user_input
+    
+    def get_right_letter_right_position(self):
+        print('TODO: get_right_letter_right_position')
+
+    def get_right_letter_wrong_position(self):
+        print('TODO: get_right_letter_wrong_position')
 
     def display_narrowed_answer_list_stats(self):
         """
@@ -355,27 +399,4 @@ def guess_list_stats():
 
 if __name__ == '__main__':
     my_list = WordList(answers_list,guesses_list)
-
-    print(my_list.most_common_letters())
-
-    """
-    my_list.search_wrong_letter_wrong_position('C')
-    my_list.search_wrong_letter_wrong_position('A')
-
-    my_list.search_right_letter_wrong_position('T',2)
-    my_list.search_right_letter_wrong_position('E',3)
-    my_list.search_right_letter_wrong_position('R',4)
-
-    my_list.search_wrong_letter_wrong_position('B')
-
-    my_list.search_right_letter_wrong_position('I',2)
-
-    my_list.search_right_letter_wrong_position('T',0)
-    my_list.search_right_letter_wrong_position('E',4)
-    my_list.search_right_letter_wrong_position('R',1)
-
-    my_list.search_right_letter_right_position('T',4)
-
-    print( my_list.most_common_letters() )
-    print(my_list.narrowed_answer_list)
-    """
+    my_list.play_loop()
