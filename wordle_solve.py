@@ -243,31 +243,122 @@ class WordList:
             number_guesses += 1
             
     def play_turn(self):
+        """
+        TODO: this documentation.
+        """
         player_guess = 'NONE'
+        right_letter_right_position = 'NONE'
+        right_letter_wrong_position = 'NONE'
+        wrong_letter = 'NONE'
         print('Here are the best guesses to use: ' )
         print( self.get_best_guess() )
-        player_guess = self.get_guess() # TODO: stuff from here is kinda hairy good luck
-        print(f'We got the guess : {player_guess}')
-        self.get_right_letter_right_position()
+        player_guess = self.get_guess() 
+        print(f'We got the guess : {player_guess}') # TODO: adapt this right.
+        right_letter_right_position = self.get_right_letter_right_position()
+        right_letter_wrong_position = self.get_right_letter_wrong_position()
+        wrong_letter = self.get_wrong_letter_wrong_position()
 
     def get_guess(self):
+        """
+        TODO: this doc
+        """
         user_input = 'NONE'
         while user_input == 'NONE':
+
             user_input = input('Your guess: ').upper()
+
             if len(user_input) != 5:
                 user_input = 'NONE'
                 print('Guess must be 5 letters')
+
+            if not ( user_input in self.answer_list or user_input in self.guess_list):
+                raise ValueError('Guess not in valid answer or guess list.')
+
             for letter in user_input:
                 if letter not in alphabet_list:
                     user_input = 'NONE'
                     print('Guess must be letters only')
+
         return user_input
     
     def get_right_letter_right_position(self):
-        print('TODO: get_right_letter_right_position')
+        """
+        TODO: this doc
+        """
+        user_input = 'NONE'
+        while user_input == 'NONE':
+
+            user_input = input('Letters in right position (enter \'h\' for help): ').upper()
+
+            if user_input == 'H':
+                print('Enter the letters that are in the right position guide')
+                print('\tEnter positions that you have not solved for as a non letter character')
+                print('\tIf you guessed \'CATER\', and E is in the right place')
+                print('\tyou could enter ___E_, or 123e5 and so on.')
+                user_input = 'NONE'
+
+            elif len(user_input) != 5:
+                raise SyntaxError('Must be 5 characters long.')
+
+            #usable some where later
+            else:
+                for i in range(len(user_input)):
+                    if user_input[i] in alphabet_list:
+                        self.search_right_letter_right_position( user_input[i], i )
+        return user_input
+            
 
     def get_right_letter_wrong_position(self):
-        print('TODO: get_right_letter_wrong_position')
+        """
+        TODO: doc
+        """
+        user_input = 'NONE'
+        while user_input == 'NONE':
+
+            user_input = input('Letters in wrong position (enter \'h\' for help): ').upper()
+
+            if user_input == 'H':
+                print('Enter the letters that are in the wrong position guide')
+                print('\tEnter positions that you have not solved for as a non letter character')
+                print('\tIf you guessed \'CATER\', and A is in the wrong place')
+                print('\tyou could enter _A___, or 1a345 and so on.')
+                user_input = 'NONE'
+
+            elif len(user_input) != 5:
+                raise SyntaxError('Must be 5 characters long.')
+
+            #usable some where later
+            else:
+                for i in range(len(user_input)):
+                    if user_input[i] in alphabet_list:
+                        self.search_right_letter_wrong_position( user_input[i], i )
+        return user_input
+
+    def get_wrong_letter_wrong_position(self):
+        """
+        TODO: doc
+        """
+        user_input = 'NONE'
+        while user_input == 'NONE':
+
+            user_input = input('Letters not in word (enter \'h\' for help): ').upper()
+
+            if user_input == 'H':
+                print('Enter the letters that are not in the word guide')
+                print('\tEnter letters are in the word as a non letter character')
+                print('\tIf you guessed \'CATER\', and R is not in the word')
+                print('\tyou could enter ____R, or 1234r and so on.')
+                user_input = 'NONE'
+
+            elif len(user_input) != 5:
+                raise SyntaxError('Must be 5 characters long.')
+
+            #usable some where later
+            else:
+                for i in range(len(user_input)):
+                    if user_input[i] in alphabet_list:
+                        self.search_wrong_letter_wrong_position( user_input[i], i )
+        return user_input
 
     def display_narrowed_answer_list_stats(self):
         """

@@ -42,7 +42,10 @@ To do this I needed a function to copy the list. It was tricky because if you ju
 In order to generate guesses we need to carefully eliminate letters in order of frequency and return the word list. To do this without messing up the original list, we make a copy, get most common letters, and then narrow the list. It shouldn't ever give an empty list of narrowed words, but just in case I check and rerun to the step before there aren't any words left.
 
 ### Cleanup
-We'll need to make it so it doesn't all break down because of a lower case letter or anything.
+We'll need to make it so it doesn't all break down because of a lower case letter or anything. That's easy, I have made it so guesses the user makes are all made uppercase right away.
 
 ## Actually Solving Puzzles
 Now we need to make a loop that will let the user input a guess and which letters were correct and which were wrong, and so on. From there we'll move on to making a web application using Flask(maybe) to do all this.
+
+### Getting Guesses
+This is easy, just input it the guess, make sure it's valid, and off we go. From there we'll need to break down which letters are in the right position, and so on. That's just more of the same. I am going to make sure that the user answers about what letters are correct and so on are correct.
