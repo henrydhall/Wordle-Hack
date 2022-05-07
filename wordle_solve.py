@@ -106,24 +106,25 @@ class WordList:
         Parameters- letter: the letter to get rid of, optional position for when letter is in word. 
         Returns- none. Does set the answer_list to the new list.
         """
-        if letter not in self.eliminated_letters:
-            self.eliminated_letters.add(letter)
 
-        new_answers = []
+        new_answers = []    # Initialize these lists. These become our new shortened answer lists.
         new_guesses = []
 
-        if letter not in self.found_letters:        # TODO: this documentation.
-            for word in self.narrowed_answer_list:
-                if letter not in word:
+        if letter not in self.found_letters:          # If the letter we're looking to eliminate isn't also in the word.
+            if letter not in self.eliminated_letters:  # If we haven't already eliminated it add it to our set of words.
+                self.eliminated_letters.add(letter)
+            for word in self.narrowed_answer_list:     # Look at all remaining words.
+                if letter not in word:                 # If our letter isn't in the word keep it.
                     new_answers.append(word)
             for word in self.narrowed_guess_list:
                 if letter not in word:
                     new_guesses.append(word)
-        elif letter in self.found_letters:
-            for word in self.narrowed_answer_list:
+
+        elif letter in self.found_letters:          # If the letter is in the word, but doesn't occur multiple times
+            for word in self.narrowed_answer_list:  # Just get rid of words with the letter in the position we've narrowed.
                 if word[ position ] != letter:
                     new_answers.append(word)
-            for word in self.narrowed_guess_list:
+            for word in self.narrowed_guess_list:   # TODO: improve searching for multiple letters. Will take some work...
                 if word[ position ] != letter:
                     new_guesses.append(word)
 
@@ -253,7 +254,8 @@ class WordList:
             
     def play_turn(self):
         """
-        TODO: this documentation.
+        Plays a full turn of Wordle. Requires the user to input the guess
+            and status of each letter in correct order.
         """
         player_guess = 'NONE'
         right_letter_right_position = 'NONE'
@@ -276,7 +278,7 @@ class WordList:
 
     def get_guess(self):
         """
-        TODO: this doc
+        Gets the guess the player made. Verifies length and if it's a legit guess.
         """
         user_input = 'NONE'
         while user_input == 'NONE':
@@ -302,7 +304,7 @@ class WordList:
     
     def get_right_letter_right_position(self):
         """
-        TODO: this doc
+        Get information from user about which letters were correct.
         """
         user_input = 'NONE'
         while user_input == 'NONE':
@@ -329,7 +331,7 @@ class WordList:
 
     def get_right_letter_wrong_position(self):
         """
-        TODO: doc
+        Get information from user about which letters were just in the wrong position.
         """
         user_input = 'NONE'
         while user_input == 'NONE':
@@ -351,7 +353,7 @@ class WordList:
 
     def get_wrong_letter_wrong_position(self):
         """
-        TODO: doc
+        Get information from user about which letters are not in the word.
         """
         user_input = 'NONE'
         while user_input == 'NONE':
@@ -373,7 +375,13 @@ class WordList:
 
     def check_guess(self, guess, right_positions, right_letters, wrong_letters ):
         """
-        TODO: doc
+        Makes sure the information provided by the user is consistent.
+        Parameters- 
+            right_positions: letters in the right position.
+            right_letters: letters whose position is not yet known.
+            wrong_letters: letters not in the word.
+        Returns-
+            True if the information is consistent, False otherwise.
         """
         compiled_answer = ['*','*','*','*','*']
 
@@ -404,7 +412,11 @@ class WordList:
 
     def search_by_guess(self, right_pos_letters, right_letters, wrong_letters):
         """
-        TODO: doc
+        Search the lists based on input from the user.
+        Parameters
+            right_pos_letters: string. Alphabet characters in this indicate the position of letter in the word.
+            right_letters: string. Alphabet characters indicate a letter that is in the wrong position.
+            wrong_letters: string. Alphabet characters indicate a letter that is not in the word.
         """
         for i in range(WORD_LENGTH):
             if right_pos_letters[i] in alphabet_list:
@@ -465,6 +477,9 @@ class WordList:
         return one_letter, two_letter, three_letter
 
     def combined_frequency(self):
+        """
+        Returns the total number of words that contain each letter.
+        """
         one_letter, two_letter, three_letter = self.letter_frequency()
         total_letters = [ one_letter[i] + two_letter[i] + three_letter[i] for i in range(26) ]
         return total_letters
