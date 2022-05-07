@@ -6,7 +6,7 @@ from matplotlib import markers, pyplot as plt, use
 import pyinputplus
 
 # Globals I need.
-answers_list = Path('answers.txt').read_text().splitlines()
+answers_list = Path('answers.txt').read_text().splitlines()   # Major issues with encodings in windows... TODO: fix that.
 guesses_list = Path('guesses.txt').read_text().splitlines()
 combined_list = Path('combined.txt').read_text().splitlines()
 alphabet_list = string.ascii_uppercase
@@ -253,10 +253,14 @@ class WordList:
         print('Here are the best guesses to use: ' )
         print( self.get_best_guess() )
         player_guess = self.get_guess() 
-        print(f'We got the guess : {player_guess}') # TODO: adapt this right.
+        print(f'We got the guess :{player_guess}') # TODO: adapt this right.
         right_letter_right_position = self.get_right_letter_right_position()
         right_letter_wrong_position = self.get_right_letter_wrong_position()
         wrong_letter = self.get_wrong_letter_wrong_position()
+        if self.check_guess(player_guess,right_letter_right_position,right_letter_wrong_position,wrong_letter):
+            print('TODO: do what we need when they have good input')
+        else:
+            raise ValueError('You did not enter appropriate correctness statuses for letters')
 
     def get_guess(self):
         """
@@ -359,6 +363,37 @@ class WordList:
                     if user_input[i] in alphabet_list:
                         self.search_wrong_letter_wrong_position( user_input[i], i )
         return user_input
+
+    def check_guess(self, guess, right_positions, right_letters, wrong_letters ):
+        """
+        TODO: doc
+        """
+        compiled_answer = ['*','*','*','*','*']
+
+        for i in range(WORD_LENGTH):
+            if right_positions[i] in alphabet_list:
+                compiled_answer[i] = right_positions[i]
+
+        for i in range(WORD_LENGTH):
+            if right_letters[i] in alphabet_list:
+                if compiled_answer[i] in alphabet_list:
+                    raise ValueError(f'conflicting status of correctness in {right_positions} and {right_letters}')
+                else:
+                    compiled_answer[i] = right_letters[i]
+
+        for i in range(WORD_LENGTH):
+            if wrong_letters[i] in alphabet_list:
+                if compiled_answer[i] in alphabet_list:
+                    raise ValueError(f'Conflicting status of correctness in {wrong_letters} and ({right_positions} or {right_letters})')
+                else:
+                    compiled_answer[i] = wrong_letters[i]
+        final_compiled_answer = ''
+        for letter in compiled_answer:
+            final_compiled_answer += letter
+        if final_compiled_answer == guess:
+            return True
+        else:
+            return False
 
     def display_narrowed_answer_list_stats(self):
         """
