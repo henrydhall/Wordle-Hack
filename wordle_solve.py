@@ -27,6 +27,7 @@ class WordList:
         self.narrowed_guess_list = guess_list
         self.found_letters = set()         # For holding the SET of found letters.
         self.eliminated_letters = set()    # For holding the SET of eliminated letters.
+        self.solved = False
         # If any additional property is added, make sure you add it to WordList.copy() 
 
     def __reset__(self):
@@ -53,6 +54,7 @@ class WordList:
         copy_list.narrowed_guess_list  = self.narrowed_guess_list
         copy_list.eliminated_letters = self.eliminated_letters
         copy_list.found_letters = self.found_letters
+        copy_list.solved = self.solved
         return copy_list
 
     def search_right_letter_right_position( self, letter, position ):
@@ -239,8 +241,15 @@ class WordList:
         number_guesses = 0
         print('Let\'s play Wordle together!')
         while  number_guesses != MAX_GUESSES:
+            print(f'Turn {number_guesses+1}')
             self.play_turn()
             number_guesses += 1
+            print(f'{MAX_GUESSES-number_guesses} turns left')
+            if self.solved:
+                return 0
+
+        if number_guesses == MAX_GUESSES:
+            print('Dang it! We didn\'t get it :(')
             
     def play_turn(self):
         """
@@ -253,12 +262,15 @@ class WordList:
         print('Here are the best guesses to use: ' )
         print( self.get_best_guess() )
         player_guess = self.get_guess() 
-        print(f'We got the guess :{player_guess}') # TODO: adapt this right.
+        print(f'We got the guess: {player_guess}') # TODO: adapt this right.
         right_letter_right_position = self.get_right_letter_right_position()
+        if self.solved:
+            return
         right_letter_wrong_position = self.get_right_letter_wrong_position()
         wrong_letter = self.get_wrong_letter_wrong_position()
         if self.check_guess(player_guess,right_letter_right_position,right_letter_wrong_position,wrong_letter):
-            print('TODO: do what we need when they have good input')
+            self.search_by_guess(right_letter_right_position,right_letter_wrong_position,wrong_letter)
+            
         else:
             raise ValueError('You did not enter appropriate correctness statuses for letters')
 
@@ -271,12 +283,15 @@ class WordList:
 
             user_input = input('Your guess: ').upper()
 
+            # TODO: allow user to see all remaining answers.
+
             if len(user_input) != 5:
                 user_input = 'NONE'
                 print('Guess must be 5 letters')
 
             if not ( user_input in self.answer_list or user_input in self.guess_list):
-                raise ValueError('Guess not in valid answer or guess list.')
+                user_input = 'NONE'
+                print('Guess not valid.')
 
             for letter in user_input:
                 if letter not in alphabet_list:
@@ -302,13 +317,13 @@ class WordList:
                 user_input = 'NONE'
 
             elif len(user_input) != 5:
-                raise SyntaxError('Must be 5 characters long.')
+                user_input = 'NONE'
+                print('Must be 5 characters long.')
 
-            #usable some where later
-            else:
-                for i in range(len(user_input)):
-                    if user_input[i] in alphabet_list:
-                        self.search_right_letter_right_position( user_input[i], i )
+            elif user_input in self.answer_list: # need to end stuff here
+                print(f'It looks like we solved it! The answer was {user_input}')
+                self.solved = True
+
         return user_input
             
 
@@ -329,13 +344,9 @@ class WordList:
                 user_input = 'NONE'
 
             elif len(user_input) != 5:
-                raise SyntaxError('Must be 5 characters long.')
+                user_input = 'NONE'
+                print('Input must be 5 characters long.')
 
-            #usable some where later
-            else:
-                for i in range(len(user_input)):
-                    if user_input[i] in alphabet_list:
-                        self.search_right_letter_wrong_position( user_input[i], i )
         return user_input
 
     def get_wrong_letter_wrong_position(self):
@@ -355,13 +366,9 @@ class WordList:
                 user_input = 'NONE'
 
             elif len(user_input) != 5:
-                raise SyntaxError('Must be 5 characters long.')
+                user_input = 'NONE'
+                print('Input must be 5 characters long.')
 
-            #usable some where later
-            else:
-                for i in range(len(user_input)):
-                    if user_input[i] in alphabet_list:
-                        self.search_wrong_letter_wrong_position( user_input[i], i )
         return user_input
 
     def check_guess(self, guess, right_positions, right_letters, wrong_letters ):
@@ -394,6 +401,20 @@ class WordList:
             return True
         else:
             return False
+
+    def search_by_guess(self, right_pos_letters, right_letters, wrong_letters):
+        """
+        TODO: doc
+        """
+        for i in range(WORD_LENGTH):
+            if right_pos_letters[i] in alphabet_list:
+                self.search_right_letter_right_position( right_pos_letters[i], i )
+        for i in range(WORD_LENGTH):
+            if right_letters[i] in alphabet_list:
+                self.search_right_letter_wrong_position(right_letters[i], i)
+        for i in range(WORD_LENGTH):
+            if wrong_letters[i] in alphabet_list:
+                self.search_wrong_letter_wrong_position(wrong_letters[i], i)
 
     def display_narrowed_answer_list_stats(self):
         """
