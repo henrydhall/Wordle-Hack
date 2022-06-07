@@ -245,7 +245,8 @@ class WordList:
             print(f'Turn {number_guesses+1}')
             self.play_turn()
             number_guesses += 1
-            print(f'{MAX_GUESSES-number_guesses} turns left')
+            if not self.solved:
+                print(f'{MAX_GUESSES-number_guesses} turns left')
             if self.solved:
                 return 0
 
@@ -261,20 +262,24 @@ class WordList:
         right_letter_right_position = 'NONE'
         right_letter_wrong_position = 'NONE'
         wrong_letter = 'NONE'
+        valid_guess = False
         print('Here are the best guesses to use: ' )
         print( self.get_best_guess() )
         player_guess = self.get_guess() 
-        print(f'We got the guess: {player_guess}') # TODO: adapt this right.
-        right_letter_right_position = self.get_right_letter_right_position()
-        if self.solved:
-            return
-        right_letter_wrong_position = self.get_right_letter_wrong_position()
-        wrong_letter = self.get_wrong_letter_wrong_position()
-        if self.check_guess(player_guess,right_letter_right_position,right_letter_wrong_position,wrong_letter):
-            self.search_by_guess(right_letter_right_position,right_letter_wrong_position,wrong_letter)
-            
-        else:
-            raise ValueError('You did not enter appropriate correctness statuses for letters')
+        print(f'We got the guess: {player_guess}') # TODO: sure this works.
+        # Start Here:
+        while not valid_guess:
+            right_letter_right_position = self.get_right_letter_right_position()
+            if self.solved:
+                return
+            right_letter_wrong_position = self.get_right_letter_wrong_position()
+            wrong_letter = self.get_wrong_letter_wrong_position()
+            if self.check_guess(player_guess,right_letter_right_position,right_letter_wrong_position,wrong_letter):
+                self.search_by_guess(right_letter_right_position,right_letter_wrong_position,wrong_letter)
+                valid_guess = True
+        #else:
+            # Change this, so that it repeats the above
+        #    raise ValueError('You did not enter appropriate correctness statuses for letters')
 
     def get_guess(self):
         """
@@ -285,7 +290,10 @@ class WordList:
 
             user_input = input('Your guess: ').upper()
 
-            # TODO: allow user to see all remaining answers.
+            if user_input == 'H':
+                print('Enter \"Print All\" to see all remaining answers.')
+            elif user_input == 'PRINT ALL':
+                self.print_narrowed_answers()
 
             if len(user_input) != 5:
                 user_input = 'NONE'
@@ -392,14 +400,15 @@ class WordList:
         for i in range(WORD_LENGTH):
             if right_letters[i] in alphabet_list:
                 if compiled_answer[i] in alphabet_list:
-                    raise ValueError(f'conflicting status of correctness in {right_positions} and {right_letters}')
+                    print(f'conflicting status of correctness in {right_positions} and {right_letters}')
                 else:
                     compiled_answer[i] = right_letters[i]
 
         for i in range(WORD_LENGTH):
             if wrong_letters[i] in alphabet_list:
                 if compiled_answer[i] in alphabet_list:
-                    raise ValueError(f'Conflicting status of correctness in {wrong_letters} and ({right_positions} or {right_letters})')
+                    print(f'Conflicting status of correctness in {wrong_letters} and ({right_positions} or {right_letters})')
+                    return False
                 else:
                     compiled_answer[i] = wrong_letters[i]
         final_compiled_answer = ''

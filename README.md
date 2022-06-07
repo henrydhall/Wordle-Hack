@@ -49,3 +49,6 @@ Now we need to make a loop that will let the user input a guess and which letter
 
 ### Getting Guesses
 This is easy, just input it the guess, make sure it's valid, and off we go. From there we'll need to break down which letters are in the right position, and so on. That's just more of the same. I am going to make sure that the user answers about what letters are correct and so on are correct.
+
+### Continuing Getting Guesses
+This was harder, I wanted to make sure that it didn't just end, so we got that figured out. I also added the option to print all of the remaining answers.
